@@ -51,10 +51,12 @@ for i in range(len(corpus_tokens)):
 #lemmatize
 corpus_lemma = []
 wordnet_lemmatizer = WordNetLemmatizer()
-for txt in corpus_filtre:    
+for txt in corpus_filtre:
+    article_lemma = []    
     for m in txt:
         mot1 = wordnet_lemmatizer.lemmatize(m, pos = "n")
         mot2 = wordnet_lemmatizer.lemmatize(mot1, pos = "v")
         mot3 = wordnet_lemmatizer.lemmatize(mot2, pos = ("a"))
-        corpus_lemma.append(mot3)
-print(corpus_lemma)
+        article_lemma.append(mot3)       
+    corpus_lemma.append(article_lemma)
+    print(corpus_lemma)
