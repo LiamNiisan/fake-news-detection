@@ -7,56 +7,78 @@
 # librairies utilisees
 import os as os
 import pandas as pd
+import numpy as np
 import string
 import nltk
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 
-os.chdir("C:/Users/Nick/IA")  # remplacer \ par /
-print("Repertoire de travail actuel : ", os.getcwd())
+class Preprocessing:
 
-# importer xlsx
-xlsx = pd.read_excel('test.xlsx')
-print(xlsx.head(3))  # en-tête du tableau
-colnames = list(xlsx.columns)  # Noms des colonnes
-ncol = len(xlsx.columns)  # Nombre de colonnes
-nrow = len(xlsx.index)  # Nombre de lignes
+    def get_data(self, path):
 
-# supprimer la ponctuation
-corpus = xlsx.iloc[:, 1]
-source = xlsx.iloc[:, 1]
-for i in range(len(corpus)):
-    tmp = str(corpus[i])
-    tmp = tmp.lower()  # Supprimer les majuscules
-    tmp = tmp.replace("'", " ")  # Remplacer apostrophe par une espace
-    tmp = tmp.replace("\n", " ") # Supprimer les retours chariot
-    tmp = tmp.translate(str.maketrans("", "", string.punctuation)) # Supprimer la ponctuation
-    tmp = tmp.encode('utf-8').decode('utf-8') # Éliminations des caractères spéciaux et accentués
-    corpus[i] = tmp
-print(corpus)
+        data = pd.read_excel(path)
 
-# tokenize
-for i in range(len(corpus)):
-    corpus_tokens = [nltk.word_tokenize(sent) for sent in corpus]
-    print(corpus_tokens)
+        return data
 
-# stopword
-mots_vides = set(stopwords.words('english'))
-corpus_filtre = []
-for i in range(len(corpus_tokens)):
-    corpus_filtre.append([mots for mots in corpus_tokens[i] if not mots in mots_vides])
-    print(corpus_filtre)
 
-#lemmatize
-corpus_lemma = []
-wordnet_lemmatizer = WordNetLemmatizer()
-for txt in corpus_filtre:
-    article_lemma = []    
-    for m in txt:
-        mot1 = wordnet_lemmatizer.lemmatize(m, pos = "n")
-        mot2 = wordnet_lemmatizer.lemmatize(mot1, pos = "v")
-        mot3 = wordnet_lemmatizer.lemmatize(mot2, pos = ("a"))
-        article_lemma.append(mot3)       
-    corpus_lemma.append(article_lemma)
-    print(corpus_lemma)
+    def remove_punct(self, data):
+
+        corpus_df = data['title'] + data['text']
+
+        for i in range(corpus_df.shape[0]):
+            text = str(corpus_df.iloc[i])
+            text = text.lower()  # Supprimer les majuscules
+            text = text.replace("'", " ")  # Remplacer apostrophe par une espace
+            text = text.replace("\n", " ") # Supprimer les retours chariot
+            text = text.translate(str.maketrans("", "", string.punctuation)) # Supprimer la ponctuation
+            text = text.encode('utf-8').decode('utf-8') # Éliminations des caractères spéciaux et accentués
+            corpus_df.iloc[i] = text
+
+        return corpus_df
+        
+
+    def tokenize(self, corpus_df):
+
+        return [nltk.word_tokenize(corpus_df.iloc[i]) for i in range(corpus_df.shape[0])]
+
+
+    def remove_stop_words(self, corpus):
+
+        stop_words = set(stopwords.words('english'))
+        filtered_corpus = []
+        for text in corpus:
+            filtered_corpus.append([word for word in text if not word in stop_words])
+            
+        return filtered_corpus
+
+    
+    def lemmatize(self, corpus):
+
+        lemma_corpus = []
+        wordnet_lemmatizer = WordNetLemmatizer()
+
+        for text in corpus:
+            lemma_text = []    
+            for word in text:
+                word = wordnet_lemmatizer.lemmatize(word, pos = "n")
+                word = wordnet_lemmatizer.lemmatize(word, pos = "v")
+                word = wordnet_lemmatizer.lemmatize(word, pos = ("a"))
+                lemma_text.append(word)       
+            lemma_corpus.append(lemma_text)
+
+        return lemma_corpus
+
+
+    def run(self, path):
+
+        data = self.get_data(path)
+        corpus_df = self.remove_punct(data)
+        corpus = np.array(self.tokenize(corpus_df))
+        corpus = np.array(self.remove_stop_words(corpus))
+        corpus = np.array(self.lemmatize(corpus))
+
+        return corpus
+
+
