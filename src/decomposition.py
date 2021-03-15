@@ -1,10 +1,4 @@
-#   Conception de processus d’analyse textuelle permettant de déterminer le niveau de validité d’articles
-#   Auteurs : Nicolas Clermont, Badr Jaidi et Jonathan Boudreau
-#   Date : 18/02/21
-#   Description : Le script traite un fichier xlsx pour supprimer la ponctuation,
-#   segmenter les fichiers, supprimer les mots vides et effectuer la lemmatisation.
-
-# librairies utilisees
+#----------------- Libraries -------------------#
 import os
 import sys
 from tqdm import tqdm
@@ -16,6 +10,16 @@ from Preprocessing import Preprocessing
 
 
 def kfold_decompose(data, kfold_n):
+    """
+    This function uses kfold to split the data.
+
+    Args:
+        data (list): The data to split
+        kfold_n (int): number of fragments to be split
+
+    Returns:
+        list[dict]: a list of the split datasets
+    """
 
     X = np.array(data)
     kf = KFold(n_splits=kfold_n, random_state=2, shuffle=True)
@@ -23,45 +27,67 @@ def kfold_decompose(data, kfold_n):
 
     for train_index, test_index in kf.split(X):
         X_train, X_test = X[train_index], X[test_index]
-        data_output.append([X_train, X_test])
+        data_output.append({'train': X_train, 'test': X_test})
 
     return data_output
 
 
-def create_folders(data_label_true, data_label_false, kfold_n, cwd='../data/'):
+def create_folders(data_label_true, data_label_fake, kfold_n):
+    """
+    This function fragments the data and creates the repositories to store it.
 
-    training = cwd + 'training/'
+    Args:
+        data_label_true (list[dict]): true data text
+        data_label_fake (list[dict]): fake data text
+        kfold_n (int): number of data splits with kfold
+    """
+    cwd = os.path.dirname(os.path.abspath(__file__))
+    data_path = os.path.join(cwd, os.pardir, 'data')
+    training = os.path.join(data_path, 'training')
     os.mkdir(training)
     prp = Preprocessing()
 
     for i in tqdm(range(kfold_n)):
 
-        data_set_path = cwd + training + 'data_set_' + str(i+1)
+        data_set_path = os.path.join(training, 'data_set_' + str(i+1))
 
         os.mkdir(data_set_path)
-        os.mkdir(data_set_path+'/test')
-        os.mkdir(data_set_path+'/train')
-        os.mkdir(data_set_path+'/train/vc')
+        os.mkdir(os.path.join(data_set_path, 'test'))
+        os.mkdir(os.path.join(data_set_path, 'train'))
+        os.mkdir(os.path.join(data_set_path, 'train', 'vc'))
 
-        pd.DataFrame(data_label_true[i][0]).to_excel(
-            data_set_path+'/test/true.xlsx')
-        pd.DataFrame(data_label_false[i][0]).to_excel(
-            data_set_path+'/test/false.xlsx')
-
-        X_train, X_val = train_test_split(
-            data_label_true[i][1], test_size=0.20, random_state=1)
-        pd.DataFrame(prp.preprocess(X_train)).to_excel(data_set_path+'/train/true.xlsx')
-        pd.DataFrame(X_val).to_excel(data_set_path+'/train/vc/true.xlsx')
+        pd.DataFrame(data_label_true[i]['test']).to_excel(
+            os.path.join(data_set_path, 'test', 'True.xlsx'))
+        pd.DataFrame(data_label_fake[i]['test']).to_excel(
+            os.path.join(data_set_path, 'test', 'Fake.xlsx'))
 
         X_train, X_val = train_test_split(
-            data_label_false[i][1], test_size=0.20, random_state=1)
-        pd.DataFrame(prp.preprocess(X_train)).to_excel(data_set_path+'/train/false.xlsx')
-        pd.DataFrame(X_val).to_excel(data_set_path+'/train/vc/false.xlsx')
+            data_label_true[i]['train'], test_size=0.20, random_state=1)
+        pd.DataFrame(prp.preprocess(X_train)).to_excel(
+            os.path.join(data_set_path, 'train', 'True.xlsx'))
+        pd.DataFrame(X_val).to_excel(os.path.join(
+            data_set_path, 'train', 'vc', 'True.xlsx'))
+
+        X_train, X_val = train_test_split(
+            data_label_fake[i]['train'], test_size=0.20, random_state=1)
+        pd.DataFrame(prp.preprocess(X_train)).to_excel(
+            os.path.join(data_set_path, 'train', 'Fake.xlsx'))
+        pd.DataFrame(X_val).to_excel(os.path.join(
+            data_set_path, 'train', 'vc', 'Fake.xlsx'))
 
 
-def main(true_set, false_set, kfold_n=5):
+def main(true_set, fake_set, kfold_n=5):
+    """
+    This function takes the text dataset of true and fake news and splits it with kfolds 
+    and creates the repositories for it.
+
+    Args:
+        true_set (numpy): list of text of true label dataset
+        fake_set (numpy): list of text of fake label dataset
+        kfold_n (int, optional): kfold stplit. Defaults to 5.
+    """    
 
     data_label_true = kfold_decompose(true_set, kfold_n)
-    data_label_false = kfold_decompose(false_set, kfold_n)
+    data_label_fake = kfold_decompose(fake_set, kfold_n)
 
-    create_folders(data_label_true, data_label_false, kfold_n)
+    create_folders(data_label_true, data_label_fake, kfold_n)

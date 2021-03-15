@@ -1,10 +1,4 @@
-#   Conception de processus d’analyse textuelle permettant de déterminer le niveau de validité d’articles
-#   Auteurs : Nicolas Clermont, Badr Jaidi et Jonathan Boudreau
-#   Date : 18/02/21
-#   Description : Le script traite un fichier xlsx pour supprimer la ponctuation,
-#   segmenter les fichiers, supprimer les mots vides et effectuer la lemmatisation.
-
-# librairies utilisees
+#----------------- Libraries -------------------#
 import os as os
 import pandas as pd
 import numpy as np
@@ -18,6 +12,15 @@ from nltk.stem import WordNetLemmatizer
 class Preprocessing:
 
     def get_data(self, path):
+        """
+        This function gets data from and excel file and returns a list of text.
+
+        Args:
+            path (string): file location
+
+        Returns:
+            numpy : list of text
+        """        
 
         data = pd.read_excel(path)
         corpus_df = data['title'] + data['text']
@@ -26,6 +29,15 @@ class Preprocessing:
         return corpus
 
     def remove_punct(self, corpus):
+        """
+        This function removes punctuation from text.
+
+        Args:
+            corpus (numpy): list of text
+
+        Returns:
+            numpy: list of text
+        """        
 
         for i in range(len(corpus)):
             text = corpus[i]
@@ -42,10 +54,28 @@ class Preprocessing:
         return corpus
 
     def tokenize(self, corpus):
+        """
+        This function tokenizes the text.
+
+        Args:
+            corpus (numpy): list of text
+
+        Returns:
+            numpy: list of tokenized words
+        """        
 
         return np.array([nltk.word_tokenize(corpus[i]) for i in range(len(corpus))])
 
     def remove_stop_words(self, corpus):
+        """
+        This function removes stop words from text.
+
+        Args:
+            corpus (numpy): list of tokenized words
+
+        Returns:
+            numpy: list of filtered words
+        """        
 
         stop_words = set(stopwords.words('english'))
         filtered_corpus = np.array([None] * len(corpus))
@@ -56,6 +86,15 @@ class Preprocessing:
         return filtered_corpus
 
     def lemmatize(self, corpus):
+        """
+        This function lemmatizes the words in the text.
+
+        Args:
+            corpus (numpy): list of tokenized words
+
+        Returns:
+            numpy: list of text
+        """        
 
         lemma_corpus = np.array([None] * len(corpus))
         wordnet_lemmatizer = WordNetLemmatizer()
@@ -74,6 +113,20 @@ class Preprocessing:
         return lemma_corpus
 
     def preprocess(self, data):
+        """
+        This function preprocesses the data by applying the following operations:
+
+        1- Removing punctuation
+        2- Tokenizing
+        3- Removing stop words
+        4- Lemmatizing the words and merging them into text again
+
+        Args:
+            data (numpy): list of text
+
+        Returns:
+            numpy: list of preprocessed text
+        """        
 
         corpus = self.remove_punct(data)
         corpus = self.tokenize(corpus)
