@@ -20,7 +20,7 @@ class Preprocessing:
 
         Returns:
             numpy : list of text
-        """        
+        """
 
         data = pd.read_excel(path)
         corpus_df = data['title'] + data['text']
@@ -37,7 +37,7 @@ class Preprocessing:
 
         Returns:
             numpy: list of text
-        """        
+        """
 
         for i in range(len(corpus)):
             text = corpus[i]
@@ -62,7 +62,7 @@ class Preprocessing:
 
         Returns:
             numpy: list of tokenized words
-        """        
+        """
 
         return np.array([nltk.word_tokenize(corpus[i]) for i in range(len(corpus))])
 
@@ -75,7 +75,7 @@ class Preprocessing:
 
         Returns:
             numpy: list of filtered words
-        """        
+        """
 
         stop_words = set(stopwords.words('english'))
         filtered_corpus = np.array([None] * len(corpus))
@@ -94,7 +94,7 @@ class Preprocessing:
 
         Returns:
             numpy: list of text
-        """        
+        """
 
         lemma_corpus = np.array([None] * len(corpus))
         wordnet_lemmatizer = WordNetLemmatizer()
@@ -126,7 +126,7 @@ class Preprocessing:
 
         Returns:
             numpy: list of preprocessed text
-        """        
+        """
 
         corpus = self.remove_punct(data)
         corpus = self.tokenize(corpus)
