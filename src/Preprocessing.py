@@ -108,9 +108,27 @@ class Preprocessing:
                 word = wordnet_lemmatizer.lemmatize(word, pos="v")
                 word = wordnet_lemmatizer.lemmatize(word, pos=("a"))
                 lemma_text[j] = word
-            lemma_corpus[i] = ' '.join(lemma_text)
+            lemma_corpus[i] = lemma_text
 
         return lemma_corpus
+
+    def textjoin(self, corpus):
+        """
+        This function lemmatizes the words in the text.
+
+        Args:
+            corpus (numpy): list of tokenized words
+
+        Returns:
+            numpy: list of text
+        """
+        textjoin_corpus = np.array([None] * len(corpus))
+
+        for i in range(len(corpus)):
+            textjoin_corpus[i] = ' '.join(corpus[i])
+
+        return textjoin_corpus
+
 
     def preprocess(self, data):
         """
@@ -120,6 +138,7 @@ class Preprocessing:
         2- Tokenizing
         3- Removing stop words
         4- Lemmatizing the words and merging them into text again
+        5- Text join
 
         Args:
             data (numpy): list of text
@@ -132,5 +151,6 @@ class Preprocessing:
         corpus = self.tokenize(corpus)
         corpus = self.remove_stop_words(corpus)
         corpus = self.lemmatize(corpus)
-
+        corpus = self.textjoin(corpus)
+        
         return corpus
