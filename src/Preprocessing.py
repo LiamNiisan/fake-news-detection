@@ -49,6 +49,7 @@ class Preprocessing:
             text = text.translate(str.maketrans("", "", string.punctuation))
             # Éliminations des caractères spéciaux et accentués
             text = text.encode('utf-8').decode('utf-8')
+            #text = text.str.replace(r'\W',"")
             corpus[i] = text
 
         return corpus
@@ -114,7 +115,7 @@ class Preprocessing:
 
     def textjoin(self, corpus):
         """
-        This function lemmatizes the words in the text.
+        This function put a list of words in a list of text.
 
         Args:
             corpus (numpy): list of tokenized words
@@ -152,5 +153,4 @@ class Preprocessing:
         corpus = self.remove_stop_words(corpus)
         corpus = self.lemmatize(corpus)
         corpus = self.textjoin(corpus)
-        
         return corpus

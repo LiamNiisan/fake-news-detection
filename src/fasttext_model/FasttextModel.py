@@ -50,7 +50,7 @@ class FasttextModel(Model):
         xlsx_file_fake = pd.read_excel(
             os.path.join(xlsx_file_path, 'Fake.xlsx'))
 
-        f = open(fasttext_file_path, "w+")
+        f = open(fasttext_file_path, "w+", encoding="utf-8")
 
         for i in range(xlsx_file_true.shape[0]):
             row = '__label__true ' + xlsx_file_true[0].iloc[i] + '\n'

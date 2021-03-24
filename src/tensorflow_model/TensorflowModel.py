@@ -76,7 +76,7 @@ class TensorflowModel(Model):
 
         for i in range(xlsx_file_true.shape[0]):
             file_path = os.path.join(true_data_path, str(i) + '.txt')
-            f = open(file_path, "w+")
+            f = open(file_path, "w+", encoding="utf-8")
             f.write(xlsx_file_true[0].iloc[i])
             f.close()
 
@@ -85,7 +85,7 @@ class TensorflowModel(Model):
 
         for i in range(xlsx_file_fake.shape[0]):
             file_path = os.path.join(fake_data_path, str(i) + '.txt')
-            f = open(file_path, "w+")
+            f = open(file_path, "w+", encoding="utf-8")
             f.write(xlsx_file_fake[0].iloc[i])
             f.close()
 
