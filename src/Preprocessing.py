@@ -113,7 +113,7 @@ class Preprocessing:
 
         return lemma_corpus
 
-    def textjoin(self, corpus):
+    def join_text(self, corpus):
         """
         This function put a list of words in a list of text.
 
@@ -123,12 +123,12 @@ class Preprocessing:
         Returns:
             numpy: list of text
         """
-        textjoin_corpus = np.array([None] * len(corpus))
+        join_corpus = np.array([None] * len(corpus))
 
         for i in range(len(corpus)):
-            textjoin_corpus[i] = ' '.join(corpus[i])
+            join_corpus[i] = ' '.join(corpus[i])
 
-        return textjoin_corpus
+        return join_corpus
 
 
     def preprocess(self, data):
@@ -152,5 +152,6 @@ class Preprocessing:
         corpus = self.tokenize(corpus)
         corpus = self.remove_stop_words(corpus)
         corpus = self.lemmatize(corpus)
-        corpus = self.textjoin(corpus)
+        corpus = self.join_text(corpus)
+        
         return corpus

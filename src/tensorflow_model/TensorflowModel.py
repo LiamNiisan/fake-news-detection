@@ -89,7 +89,7 @@ class TensorflowModel(Model):
             f.write(xlsx_file_fake[0].iloc[i])
             f.close()
 
-    def train(self, epochs=40, learning_rate=0.5):
+    def train(self, epochs=40, max_features = 10000, sequence_length = 250, embedding_dim = 16, seed = 42, batch_size = 32):
         """
         This function trains the tensorflow model
 
@@ -105,8 +105,6 @@ class TensorflowModel(Model):
             tf_dataset_path = os.path.join(
                 tensorflow_data_path, 'dataset_' + str(i+1))
 
-            batch_size = 32
-            seed = 42
 
             raw_train_ds = tf.keras.preprocessing.text_dataset_from_directory(
                 os.path.join(tf_dataset_path, 'train'),
@@ -115,9 +113,6 @@ class TensorflowModel(Model):
             raw_val_ds = tf.keras.preprocessing.text_dataset_from_directory(
                 os.path.join(tf_dataset_path, 'valid'),
                 batch_size=batch_size)
-
-            max_features = 10000
-            sequence_length = 250
 
             self.vectorize_layer = TextVectorization(
                 max_tokens=max_features,
@@ -135,8 +130,6 @@ class TensorflowModel(Model):
 
             train_ds = train_ds.cache().prefetch(buffer_size=AUTOTUNE)
             val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
-
-            embedding_dim = 16
 
             model = tf.keras.Sequential([
                 layers.Embedding(max_features + 1, embedding_dim),

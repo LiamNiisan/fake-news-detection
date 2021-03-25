@@ -1,0 +1,9 @@
+
+/data/fasttext/
+/data/tensorflow/
+/data/training/
+/models/fasttext/
+/models/tensorflow/
+/src/__pycache__/
+/src/fasttext_model/__pycache__/
+/src/tensorflow_model/__pycache__/
