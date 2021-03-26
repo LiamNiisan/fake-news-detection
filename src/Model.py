@@ -13,7 +13,8 @@ class Model:
         self.data_path = os.path.join(path, 'data')
         self.model_path = os.path.join(path, 'models')
         self.kfold_n = kfold_n
-        self.f1_score = 0
+        self.precision = 0
+        self.accuracy = 0
 
     def preprocess(self):
         """

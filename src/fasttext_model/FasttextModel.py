@@ -89,7 +89,7 @@ class FasttextModel(Model):
         This function tests the models and generates an average f1 score
         """
 
-        score = 0
+        precision = 0
 
         for i in tqdm(range(self.kfold_n)):
 
@@ -100,6 +100,6 @@ class FasttextModel(Model):
 
             model = fasttext.load_model(f_model_path)
 
-            score += model.test(validation_dataset)[1]
+            precision += model.test(validation_dataset)[1]
 
-        self.f1_score = score / self.kfold_n
+        self.precision = precision / self.kfold_n

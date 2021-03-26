@@ -154,7 +154,7 @@ class TensorflowModel(Model):
             ])
 
             export_model.compile(
-                loss=losses.BinaryCrossentropy(from_logits=False), optimizer="adam", metrics=['accuracy']
+                loss=losses.BinaryCrossentropy(from_logits=False), optimizer="adam", metrics=['accuracy', 'precision']
             )
 
             loss, accuracy = export_model.evaluate(raw_val_ds)
@@ -172,7 +172,8 @@ class TensorflowModel(Model):
         This function tests the models and generates an average f1 score
         """
 
-        score = 0
+        total_accuracy = 0
+        total_precision = 0
         tensorflow_data_path = os.path.join(self.data_path, 'tensorflow')
 
         for i in tqdm(range(self.kfold_n)):
@@ -190,7 +191,9 @@ class TensorflowModel(Model):
                 os.path.join(tf_dataset_path, 'test'),
                 batch_size=batch_size)
 
-            loss, accuracy = model.evaluate(raw_test_ds)
-            score += accuracy
+            loss, accuracy, precision = model.evaluate(raw_test_ds)
+            total_accuracy += accuracy
+            total_precision += precision
 
-        self.f1_score = score / self.kfold_n
+        self.accuracy = total_accuracy / self.kfold_n
+        self.precision = total_precision / self.kfold_n
