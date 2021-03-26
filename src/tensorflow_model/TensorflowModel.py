@@ -154,7 +154,7 @@ class TensorflowModel(Model):
             ])
 
             export_model.compile(
-                loss=losses.BinaryCrossentropy(from_logits=False), optimizer="adam", metrics=['accuracy', 'precision']
+                loss=losses.BinaryCrossentropy(from_logits=False), optimizer="adam", metrics=['accuracy', tf.keras.metrics.Precision()]
             )
 
             loss, accuracy = export_model.evaluate(raw_val_ds)
