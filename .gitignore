@@ -7,3 +7,5 @@
 /src/__pycache__/
 /src/fasttext_model/__pycache__/
 /src/tensorflow_model/__pycache__/
+/notebooks/fasttext.html
+/notebooks/tensorflow.html
