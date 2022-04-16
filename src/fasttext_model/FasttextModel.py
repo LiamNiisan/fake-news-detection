@@ -50,7 +50,7 @@ class FasttextModel(Model):
         xlsx_file_fake = pd.read_excel(
             os.path.join(xlsx_file_path, 'Fake.xlsx'))
 
-        f = open(fasttext_file_path, "w+")
+        f = open(fasttext_file_path, "w+", encoding="utf-8")
 
         for i in range(xlsx_file_true.shape[0]):
             row = '__label__true ' + xlsx_file_true[0].iloc[i] + '\n'
@@ -89,7 +89,7 @@ class FasttextModel(Model):
         This function tests the models and generates an average f1 score
         """
 
-        score = 0
+        precision = 0
 
         for i in tqdm(range(self.kfold_n)):
 
@@ -100,6 +100,6 @@ class FasttextModel(Model):
 
             model = fasttext.load_model(f_model_path)
 
-            score += model.test(validation_dataset)[1]
+            precision += model.test(validation_dataset)[1]
 
-        self.f1_score = score / self.kfold_n
+        self.precision = precision / self.kfold_n

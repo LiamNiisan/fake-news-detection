@@ -76,7 +76,7 @@ class TensorflowModel(Model):
 
         for i in range(xlsx_file_true.shape[0]):
             file_path = os.path.join(true_data_path, str(i) + '.txt')
-            f = open(file_path, "w+")
+            f = open(file_path, "w+", encoding="utf-8")
             f.write(xlsx_file_true[0].iloc[i])
             f.close()
 
@@ -85,11 +85,11 @@ class TensorflowModel(Model):
 
         for i in range(xlsx_file_fake.shape[0]):
             file_path = os.path.join(fake_data_path, str(i) + '.txt')
-            f = open(file_path, "w+")
+            f = open(file_path, "w+", encoding="utf-8")
             f.write(xlsx_file_fake[0].iloc[i])
             f.close()
 
-    def train(self, epochs=40, learning_rate=0.5):
+    def train(self, epochs=40, max_features = 10000, sequence_length = 250, embedding_dim = 16, seed = 42, batch_size = 32):
         """
         This function trains the tensorflow model
 
@@ -105,8 +105,6 @@ class TensorflowModel(Model):
             tf_dataset_path = os.path.join(
                 tensorflow_data_path, 'dataset_' + str(i+1))
 
-            batch_size = 32
-            seed = 42
 
             raw_train_ds = tf.keras.preprocessing.text_dataset_from_directory(
                 os.path.join(tf_dataset_path, 'train'),
@@ -115,9 +113,6 @@ class TensorflowModel(Model):
             raw_val_ds = tf.keras.preprocessing.text_dataset_from_directory(
                 os.path.join(tf_dataset_path, 'valid'),
                 batch_size=batch_size)
-
-            max_features = 10000
-            sequence_length = 250
 
             self.vectorize_layer = TextVectorization(
                 max_tokens=max_features,
@@ -135,8 +130,6 @@ class TensorflowModel(Model):
 
             train_ds = train_ds.cache().prefetch(buffer_size=AUTOTUNE)
             val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
-
-            embedding_dim = 16
 
             model = tf.keras.Sequential([
                 layers.Embedding(max_features + 1, embedding_dim),
@@ -161,10 +154,10 @@ class TensorflowModel(Model):
             ])
 
             export_model.compile(
-                loss=losses.BinaryCrossentropy(from_logits=False), optimizer="adam", metrics=['accuracy']
+                loss=losses.BinaryCrossentropy(from_logits=False), optimizer="adam", metrics=['accuracy', tf.keras.metrics.Precision()]
             )
 
-            loss, accuracy = export_model.evaluate(raw_val_ds)
+            loss, accuracy, precision = export_model.evaluate(raw_val_ds)
 
             export_model.save(os.path.join(
                 self.model_path, 'tensorflow', 'model_' + str(i+1)))
@@ -179,7 +172,8 @@ class TensorflowModel(Model):
         This function tests the models and generates an average f1 score
         """
 
-        score = 0
+        total_accuracy = 0
+        total_precision = 0
         tensorflow_data_path = os.path.join(self.data_path, 'tensorflow')
 
         for i in tqdm(range(self.kfold_n)):
@@ -197,7 +191,9 @@ class TensorflowModel(Model):
                 os.path.join(tf_dataset_path, 'test'),
                 batch_size=batch_size)
 
-            loss, accuracy = model.evaluate(raw_test_ds)
-            score += accuracy
+            loss, accuracy, precision = model.evaluate(raw_test_ds)
+            total_accuracy += accuracy
+            total_precision += precision
 
-        self.f1_score = score / self.kfold_n
+        self.accuracy = total_accuracy / self.kfold_n
+        self.precision = total_precision / self.kfold_n
